@@ -1,14 +1,20 @@
 <!DOCTYPE html>
 <html style="background:black">
-<head>
-  <meta charset="UTF-8">
-  <title>Changelings - A Changeling Simulator</title>
+  <head>
+    <meta charset="UTF-8">
+    <title>Changelings - A Changeling Simulator</title>
+    <script>
+      if (location.hostname === 'localhost')
+        location.href = '/debug.html' + location.search + location.hash
+    </script>
+  </head>
+  <body>
+    <div class="cv changeling viewer"></div>
+  </body>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.10.0/matter.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/4.1.0/pixi.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/15.3.2/react.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/15.3.2/react-dom.min.js"></script>
+  <!-- <script src="http://code.responsivevoice.org/responsivevoice.js"></script> -->
   <script src="changelings.min.js"></script>
-</head>
-
-<body>
-  Soon...
-</body>
-
 </html>
-<script src="/webpack-dev-server.js"></script>

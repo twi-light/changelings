@@ -1,3 +1,4 @@
-require './changelings.styl'
-console.log 'HELLO CHANGELINGS!!'
-if false then do -> console.log 'nope'
+import './changelings.styl'
+import WorldViewer from './world.viewer.cjsx'
+
+ReactDOM.render (React.createElement WorldViewer), document.querySelector '.cv.changeling.viewer'
