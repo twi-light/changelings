@@ -3,18 +3,28 @@ import React from 'react'
 import ReactDOM from 'react-dom'
 import {Viewer, ViewerHelper} from 'react-svg-pan-zoom'
 import {getSetting, setSetting} from './settings.coffee'
-import World from './world.coffee'
+import World from './world.cjsx'
 world = new World
 
 export default class WorldViewer extends React.Component
   constructor: ->
     super arguments...
     @state = {
-      value: getSetting 'viewer', ViewerHelper.getDefaultValue()
+      # value: getSetting 'viewer', ViewerHelper.getDefaultValue()
+      value: ViewerHelper.getDefaultValue()
+      now: Date.now()
+      period: 100
     }
   onChange: (event) =>
     setSetting 'viewer', event.value
     @setState value: event.value
+  componentDidMount: ->
+    setInterval =>
+      @setState {
+        now: Date.now()/10
+        period: 100
+      }
+    , 100
   render: ->
     <Viewer detectPinch detectAutoPan tool="pan" background="" SVGBackground=""
       width={window.innerWidth} height={window.innerHeight}
@@ -23,5 +33,6 @@ export default class WorldViewer extends React.Component
       <svg width="100" height="100">
         <path stroke="blue" fill="transparent" d="M-1000 0 H 1000" />
         <path stroke="red" fill="transparent" d="M0 -1000 V 1000" />
+        {world.surface @state.now, @state.period, 0, window.innerWidth}
       </svg>
     </Viewer>
