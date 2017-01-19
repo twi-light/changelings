@@ -15,9 +15,7 @@ window.onload = ->
   direction = 1
   momentum = 0
   sprite = null
-  fetch './assets/index.json'
-    .then (response) -> response.json()
-    .then ({actors}) -> loadGif actors.queen.fly
+  loadGif './assets/actors/queen.gif'
     .then (_sprite) ->
       stage.addChild sprite = _sprite
       sprite.animationSpeed = 0.42
