@@ -24,7 +24,7 @@ module.exports = {
     'pixi.js': 'PIXI'
   output:
     path: path.join __dirname
-    filename: "dist/[name]#{if DEBUG then '' else '.min'}.js"
+    filename: "[name]#{if DEBUG then '' else '.min'}.js"
   devtool: if DEBUG then 'eval-source-map' else 'source-map'
   devServer:
     port: 80
