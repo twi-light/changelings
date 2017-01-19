@@ -1,53 +1,99 @@
-###
-npm install --global gulpjs/gulp#4.0 webpack@2.1.0-beta.25 webpack-dev-server@2.1.0-beta.8
-npm install --save-dev yargs gulpjs/gulp#4.0 webpack@2.1.0-beta.25 webpack-dev-server@2.1.0-beta.8 babel-loader babel-core babel-preset-es2017 coffee-loader coffee-script style-loader css-loader stylus-loader stylus cjsx-loader
-###
 path = require 'path'
-
 webpack = require 'webpack'
 
-{ argv } = require 'yargs'
+DEBUG = /webpack-dev-server/.test "#{process.argv}"
 
 Package = require './package.json'
 module.exports = {
+  context: path.join __dirname, 'src'
+  entry:
+    "#{Package.name}": "./#{Package.name}.coffee"
+  performance:
+    hints: if DEBUG then false
+  resolve:
+    extensions: [ '.worker.coffee', '.coffee', '.styl', '.js', '.json', '.svg']
+    modules: [
+      path.resolve __dirname, 'src'
+      'node_modules'
+    ]
+    alias:
+      react: 'preact-compat'
+      'react-dom': 'preact-compat'
   externals:
     'matter-js': 'Matter'
     'pixi.js': 'PIXI'
-    'react': 'React'
-    'react-dom': 'ReactDOM'
-  context: path.join __dirname, "src"
-  entry:
-    "#{Package.name}": "./#{Package.name}.coffee"
   output:
     path: path.join __dirname
-    filename: "[name]#{if argv.debug? then '' else '.min'}.js"
-  devtool: if argv.debug? then 'eval-source-map' else 'source-map'
+    filename: "dist/[name]#{if DEBUG then '' else '.min'}.js"
+  devtool: if DEBUG then 'eval-source-map' else 'source-map'
   devServer:
     port: 80
-    contentBase: __dirname
+    contentBase: path.join __dirname
   module:
-    loaders: [
-      { test: /\.coffee$/, loaders: ['babel?presets[]=es2017', 'coffee'] }
-      { test: /\.cjsx$/, loaders: ['babel?presets[]=es2017', 'coffee', 'cjsx'] }
-      { test: /\.styl$/, loaders: ['style', 'css', 'stylus'] }
-    ]
+    rules: [{
+      test: /\.worker\.coffee$/
+      use: ['worker-loader']
+    }, {
+      test: /\.svg$/
+      use: ['svg-url-loader?noquotes']
+    }, {
+      test: /\.json$/
+      use: ['json-loader']
+    }, {
+      test: /\.js$/
+      use: [
+        loader: 'babel-loader'
+        options:
+          babelrc: false
+          presets: [[
+            "env"
+            targets: browsers: [
+              "last 2 versions"
+              "safari >= 7"
+            ]
+            modules: false
+            loose: true
+          ]]
+      ]
+    }, {
+      test: /\.coffee$/
+      use: [
+        loader: 'babel-loader'
+        options:
+          babelrc: false
+          presets: [[
+            "env"
+            targets: browsers: [
+              "last 2 versions"
+              "safari >= 7"
+            ]
+            modules: false
+            loose: true
+          ]]
+          plugins: ['transform-runtime']
+        'coffee-loader'
+      ]
+    }, {
+      test: /\.styl$/
+      use: [
+        'style-loader?-minimize'
+        loader: 'css-loader'
+        options: minimize: no
+        'stylus-loader'
+      ]
+    }]
   plugins: [
     new webpack.DefinePlugin {
-      'DEBUG': argv.debug?
+      'DEBUG': !!DEBUG
+      'process.env.NODE_ENV': JSON.stringify if DEBUG then 'development' else 'production'
     }
-  ].concat if argv.debug? then [
-    new webpack.LoaderOptionsPlugin {
-      debug: true
-      minimize: false
-    }
+    new webpack.LoaderOptionsPlugin
+      debug: !!DEBUG
+      minimize: not DEBUG
+    new webpack.NamedModulesPlugin
+  ].concat if DEBUG then [
+    new webpack.HotModuleReplacementPlugin
   ] else [
-    new webpack.LoaderOptionsPlugin {
-      debug: false
-      minimize: true
-    }
-    new webpack.optimize.UglifyJsPlugin {
-      compress:
-        warnings: false
-    }
+    new webpack.optimize.UglifyJsPlugin
   ]
 }
